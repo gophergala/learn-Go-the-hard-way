@@ -8,4 +8,4 @@ You should complete the current exercise before you enter the next.
 
 Each exercise is a git tag,you can check out the tag,and finish the task with tips.
 
-To run get the tips please run `go run main.go`.
+To get the tips please run `go run main.go`.
