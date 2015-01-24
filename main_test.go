@@ -1,34 +1,27 @@
 package main
 
 import (
+	"runtime"
 	"testing"
 )
 
-func TestMap(t *testing.T) {
-	var f func(func(e int) int, []int) []int
-	MakeMap(&f)
-
-	var a = []int{1, 2, 3}
-
-	b := f(func(e int) int {
-		return e + 1
-	}, a)
-
-	if b[0] != 2 || b[1] != 3 || b[2] != 4 || len(b) != 3 {
-		t.Fail()
+func TestParallelMST(t *testing.T) {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	prob = [n]float64{5, 10, 2, 3, 4}
+	for d := 0; d < vp; d++ { //sub-diagonal of j=i+d
+		for i := 0; i+d < vp; i++ {
+			//runs chunk (i,i+d)
+			go chunk(i, i+d)
+		}
 	}
-
-	var f2 func(func(e int) int, map[int]int) map[int]int
-
-	MakeMap(&f2)
-
-	var c = map[int]int{0: 0, 1: 1, 2: 3}
-
-	d := f2(func(e int) int {
-		return e + 1
-	}, c)
-
-	if d[0] != 1 || d[1] != 2 || d[2] != 4 || len(d) != 3 {
+	<-finish
+	if P(0, 5, 0, 5) != `0 5 20 24 32 44 
+0 0 10 14 22 34 
+0 0 0 2 7 15 
+0 0 0 0 3 10 
+0 0 0 0 0 4 
+0 0 0 0 0 0 
+` {
 		t.Fail()
 	}
 }
