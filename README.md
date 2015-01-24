@@ -19,5 +19,6 @@ Now run `go run main.go`,let's go!
 1.  reverse slice
 2.  parallel vector sum
 3.  cheat rock-paper-sissors
-4.  make map function.
-5.  
+4.  make map function
+5.  parallel dynamic programming
+6.  
