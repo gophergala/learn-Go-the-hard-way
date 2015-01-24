@@ -1,58 +1,81 @@
 package main
 
 import (
-	"sync"
+	"math/rand"
 )
 
-//Parallelsum does parallel vector sum,
-//in each loop,buffered input capacity will be cut half
-//for the next loop to Sum goroutine to consume.
-//it terminates untill the input remains one.
-func ParallelSum(slcs ...[]int) []int {
-	input := make(chan []int, len(slcs))
-	output := make(chan []int)
-	var result []int
-	go func(input chan []int) {
-		for _, slc := range slcs {
-			input <- slc
-		}
-		close(input)
-	}(input)
+const (
+	ROCK int = iota
+	PAPER
+	SCISSORS
+)
 
-	for {
-		var wg sync.WaitGroup
-		wg.Add(cap(input) / 2)
-		for i := 0; i < cap(input)/2; i++ {
-			out := Sum(input)
-			go func() {
-				defer wg.Done()
-				for o := range out {
-					output <- o
-				}
-			}()
-		}
-		go func(output chan []int) {
-			wg.Wait()
-			close(output)
-		}(output)
-
-		input = make(chan []int, cap(input)/2)
-		if cap(input) < 2 {
-			result = <-output
-			break
-		}
-		for o := range output {
-			input <- o
-		}
-		output = make(chan []int)
-		close(input)
-	}
-	return result
+type Choice struct {
+	Who   int //0 you 1 your opponent
+	Guess int
 }
 
-//TODO:complete the Sum for the parallel sum function.
-var Sum func(sum chan []int) (output chan []int)
+//Win returns true if you win.
+func Win(you, he int) bool {
+	if you == ROCK && he == SCISSORS {
+		return true
+	}
+	if you == PAPER && he == ROCK {
+		return true
+	}
+	if you == SCISSORS && he == PAPER {
+		return true
+	}
+	return false
+}
+
+func Opponent(guess chan Choice, please chan struct{}) {
+	for i := 0; i < 3; i++ {
+		<-please
+		choice := rand.Intn(3)
+		who := 1
+		guess <- Choice{who, choice}
+		please <- struct{}{}
+	}
+}
+
+var Cheat func(guess chan Choice) chan Choice
+
+func Me(guess chan Choice, please chan struct{}) {
+	for i := 0; i < 3; i++ {
+		<-please
+		choice := rand.Intn(3)
+		who := 0
+		guess <- Choice{who, choice}
+		please <- struct{}{}
+	}
+}
+
+func Game() []bool {
+	guess := make(chan Choice)
+	//please sync 2 goroutines.
+	please := make(chan struct{})
+	go func() { please <- struct{}{} }()
+	go Opponent(guess, please)
+	go Me(guess, please)
+	guess = Cheat(guess)
+	var wins []bool
+
+	for i := 0; i < 3; i++ {
+		g1 := <-guess
+		g2 := <-guess
+		win := false
+		if g1.Who == 0 {
+			win = Win(g1.Guess, g2.Guess)
+		} else {
+			win = Win(g2.Guess, g1.Guess)
+		}
+		wins = append(wins, win)
+	}
+
+	return wins
+}
 
 func main() {
-	println("Please edit main.go,and complete the 'Sum' function for the parallel sum to pass the test.\nConcurrency is the most important feature of Go,and the principle is\n'Do not communicate by sharing memory; instead, share memory by communicating.'\nIn this exercise you need to catch many features of channels.This is a tour for you to figure out!")
+	println("Now let's play a game 'rock-paper-scissors',there are 2 players-you and a goroutine!\nTo be bound to win,you should call a goroutine to help you to peer what your opponent choose.\nTwo out of three.\nPlease edit main.go to complete func 'Cheat' to win!")
 }
