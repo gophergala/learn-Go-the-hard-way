@@ -5,12 +5,14 @@ import (
 	"net"
 	"net/http"
 	"reflect"
+	"strconv"
 )
 
 type Server struct {
-	routes []route      //routes
-	addr   string       //address
-	l      net.Listener //save the listener so it can be closed.
+	middlewares []Middleware //middleware
+	routes      []route      //routes
+	addr        string       //address
+	l           net.Listener //save the listener so it can be closed.
 }
 
 type route struct {
@@ -20,6 +22,14 @@ type route struct {
 	handler     reflect.Value //handle func
 }
 
+type Middleware struct {
+	Handle (*Context)
+}
+
+func (s *Server) Use(middlewares ...Middleware) {
+	s.middlewares = append(s.middlewares, middlewares...)
+}
+
 //implements http.Handle
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	for _, r := range s.routes {
@@ -27,10 +37,64 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			if r.httpHandler != nil {
 				r.httpHandler.ServeHTTP(res, req)
 			} else {
-				//TODO:pass the contex to the function and write return value to res.
+				//function handler
+				//*context must be the first argument.
+				ctx := &Context{req, res, s, make(map[string]string)}
+				if err := ctx.ParseForm(); err != nil {
+					log.Println(err)
+				}
+				var args []reflect.Value
+				if requiresContext(r.handler.Type()) {
+					args = append(args, reflect.ValueOf(ctx))
+				}
+				ret := r.handler.Call(args)
+				if len(ret) == 0 {
+					return
+				}
+				//if has return value,write to response.
+				sval := ret[0]
+				var content []byte
+				if sval.Kind() == reflect.String {
+					content = []byte(sval.String())
+				} else if sval.Kind() == reflect.Slice && sval.Type().Elem().Kind() == reflect.Uint8 {
+					content = sval.Interface().([]byte)
+				}
+				ctx.SetHeader("Content-Length", strconv.Itoa(len(content)), true)
+				ctx.ResponseWriter.Write(content)
 			}
 		}
 	}
+}
+
+// SetHeader sets a response header. If `unique` is true, the current value
+// of that header will be overwritten . If false, it will be appended.
+func (ctx *Context) SetHeader(hdr string, val string, unique bool) {
+	if unique {
+		ctx.ResponseWriter.Header().Set(hdr, val)
+	} else {
+		ctx.ResponseWriter.Header().Add(hdr, val)
+	}
+}
+
+// requiresContext determines whether 'handlerType' contains
+// an argument to 'web.Ctx' as its first argument
+func requiresContext(handlerType reflect.Type) bool {
+	//if the method doesn't take arguments, no
+	if handlerType.NumIn() == 0 {
+		return false
+	}
+
+	//if the first argument is not a pointer, no
+	a0 := handlerType.In(0)
+	if a0.Kind() != reflect.Ptr {
+		return false
+	}
+	//if the first argument is a context, yes
+	if a0.Elem() == contextType {
+		return true
+	}
+
+	return false
 }
 
 //close the server
@@ -87,10 +151,10 @@ func init() {
 }
 
 func main() {
-	println(`Go's field is backend.In this exercise,we focus on web framework,it shortens our development time and reduces our coding work.
-We will implement a function handler based tiny webframework.
-The first part is context management.Next part will focus on middleware.
-Now edit main.go file to Complete 'Server.ServeHttp()'.
-In this method you need to call the handler in the context and pass context as paramater if in the signature,
-and also write the return valut to the responseWriter. `)
+	println(`Now we have a context for each request.
+To decouple the request handling,middleware is very useful,each middleware just deals with part of the handling,
+and pass the control to the next,middleware is pluggable.
+That means you can just add middlewares you want to use to handle the request.
+Suppose you have done the task l6,and have a context,now we need to add a middleware layer to tiny webframework,and make it pluggable.
+Edit main.go,and finish the task.`)
 }
