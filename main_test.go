@@ -4,24 +4,36 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 )
 
 func TestTiny(t *testing.T) {
+
 	recorder := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "http://localhost:3000/hello?name=foo", nil)
+	//send a request with post form name=foo
+	v := url.Values{}
+	v.Set("name", "foo")
+	req, _ := http.NewRequest("POST", "http://localhost:3000/hello", strings.NewReader(v.Encode()))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
 	s := NewServer()
-	s.Get("/hello", func(ctx *Context) string {
-		name := ctx.URL.Query().Get("name")
+
+	//use middleware to parse the form before each request.
+	s.Use(new(ParseForm))
+
+	s.Post("/hello", func(ctx *Context) string {
+		name := ctx.Form.Get("name")
 		return name
 	})
+
 	s.ServeHTTP(recorder, req)
 	name, err := ioutil.ReadAll(recorder.Body)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if string(name) != "foo" {
-		println(string(name))
 		t.Fail()
 		return
 	}

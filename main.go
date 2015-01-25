@@ -16,58 +16,70 @@ type Server struct {
 }
 
 type route struct {
-	r           string        //route url
-	method      string        //method (GET)
-	httpHandler http.Handler  //custome handler is allowed.
-	handler     reflect.Value //handle func
+	r       string        //route url
+	method  string        //method (GET)
+	handler reflect.Value //handle func
 }
 
-type Middleware struct {
-	Handle (*Context)
+//Middleware will be called before each request.
+type Middleware interface {
+	Handle(*Context)
 }
 
+//Use add a new Middleware that implements Handle(*Context)
 func (s *Server) Use(middlewares ...Middleware) {
 	s.middlewares = append(s.middlewares, middlewares...)
+}
+
+//Next calls next middleware.
+func (ctx *Context) Next() {
+	ctx.idx += 1
+	ctx.Invok()
+}
+
+//Invok calls middleware at index of ctx.idx.
+func (ctx *Context) Invok() {
+	if ctx.idx >= len(ctx.middlewares) {
+		return
+	} else {
+		ctx.middlewares[ctx.idx].Handle(ctx)
+	}
 }
 
 //implements http.Handle
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	for _, r := range s.routes {
-		if r.r == req.URL.Path {
-			if r.httpHandler != nil {
-				r.httpHandler.ServeHTTP(res, req)
-			} else {
-				//function handler
-				//*context must be the first argument.
-				ctx := &Context{req, res, s, make(map[string]string)}
-				if err := ctx.ParseForm(); err != nil {
-					log.Println(err)
-				}
-				var args []reflect.Value
-				if requiresContext(r.handler.Type()) {
-					args = append(args, reflect.ValueOf(ctx))
-				}
-				ret := r.handler.Call(args)
-				if len(ret) == 0 {
-					return
-				}
-				//if has return value,write to response.
-				sval := ret[0]
-				var content []byte
-				if sval.Kind() == reflect.String {
-					content = []byte(sval.String())
-				} else if sval.Kind() == reflect.Slice && sval.Type().Elem().Kind() == reflect.Uint8 {
-					content = sval.Interface().([]byte)
-				}
-				ctx.SetHeader("Content-Length", strconv.Itoa(len(content)), true)
-				ctx.ResponseWriter.Write(content)
+		if r.r == req.URL.Path && r.method == req.Method {
+			//function handler
+			//*context must be the first argument.
+			ctx := &Context{req, res, s, make(map[string]string), s.middlewares, 0}
+			//call the middlewares
+			ctx.Invok()
+
+			var args []reflect.Value
+			if requiresContext(r.handler.Type()) {
+				args = append(args, reflect.ValueOf(ctx))
 			}
+			ret := r.handler.Call(args)
+			if len(ret) == 0 {
+				return
+			}
+			//if has return value,write to response.
+			sval := ret[0]
+			var content []byte
+			if sval.Kind() == reflect.String {
+				content = []byte(sval.String())
+			} else if sval.Kind() == reflect.Slice && sval.Type().Elem().Kind() == reflect.Uint8 {
+				content = sval.Interface().([]byte)
+			}
+			ctx.SetHeader("Content-Length", strconv.Itoa(len(content)), true)
+			ctx.ResponseWriter.Write(content)
 		}
 	}
 }
 
-// SetHeader sets a response header. If `unique` is true, the current value
-// of that header will be overwritten . If false, it will be appended.
+//SetHeader sets a response header. If `unique` is true, the current value
+//of that header will be overwritten . If false, it will be appended.
 func (ctx *Context) SetHeader(hdr string, val string, unique bool) {
 	if unique {
 		ctx.ResponseWriter.Header().Set(hdr, val)
@@ -76,8 +88,8 @@ func (ctx *Context) SetHeader(hdr string, val string, unique bool) {
 	}
 }
 
-// requiresContext determines whether 'handlerType' contains
-// an argument to 'web.Ctx' as its first argument
+//requiresContext determines whether 'handlerType' contains
+//an argument to 'web.Ctx' as its first argument
 func requiresContext(handlerType reflect.Type) bool {
 	//if the method doesn't take arguments, no
 	if handlerType.NumIn() == 0 {
@@ -97,14 +109,14 @@ func requiresContext(handlerType reflect.Type) bool {
 	return false
 }
 
-//close the server
+//Close closes the server
 func (s *Server) Close() {
 	if s.l != nil {
 		s.l.Close()
 	}
 }
 
-//run the server
+//Run runs the server
 func (s *Server) Run() {
 	mux := http.NewServeMux()
 	mux.Handle("/", s)
@@ -120,28 +132,38 @@ func (s *Server) Run() {
 
 //Get adds a handler for the 'GET' http method for server.
 func (s *Server) Get(rt string, handler interface{}) {
-	switch handler.(type) {
-	case http.Handler:
-		s.routes = append(s.routes, route{r: rt, method: "GET", httpHandler: handler.(http.Handler)})
-	case reflect.Value:
-		fv := handler.(reflect.Value)
-		s.routes = append(s.routes, route{r: rt, method: "GET", handler: fv})
-	default:
-		fv := reflect.ValueOf(handler)
-		s.routes = append(s.routes, route{r: rt, method: "GET", handler: fv})
-	}
+	s.addRoute(rt, "GET", handler)
 }
 
+//Post adds a handler for the 'GET' http method for server.
+func (s *Server) Post(rt string, handler interface{}) {
+	s.addRoute(rt, "POST", handler)
+}
+func (s *Server) addRoute(rt string, method string, handler interface{}) {
+	switch handler.(type) {
+	case reflect.Value:
+		fv := handler.(reflect.Value)
+		s.routes = append(s.routes, route{r: rt, method: method, handler: fv})
+	default:
+		fv := reflect.ValueOf(handler)
+		s.routes = append(s.routes, route{r: rt, method: method, handler: fv})
+	}
+
+}
+
+//Server returns a new Server.
 func NewServer() *Server {
 	return &Server{addr: "localhost:3000"}
 }
 
-//provide context for each request.
+//provide context for each request,and bebore handling,run the Middlewares iterately.
 type Context struct {
 	*http.Request
 	http.ResponseWriter
-	Server *Server
-	Params map[string]string
+	Server      *Server
+	Params      map[string]string
+	middlewares []Middleware //middleware
+	idx         int          //index of middleware
 }
 
 var contextType reflect.Type
@@ -150,11 +172,21 @@ func init() {
 	contextType = reflect.TypeOf(Context{})
 }
 
+//To add a middleware,we just need to implement Handle(*Context) and call the ctx.Next(),if we want to continue the middleware layer.
+type ParseForm struct {
+}
+
+func (p *ParseForm) Handle(ctx *Context) {
+	ctx.ParseForm()
+	ctx.Next()
+}
+
 func main() {
 	println(`Now we have a context for each request.
 To decouple the request handling,middleware is very useful,each middleware just deals with part of the handling,
 and pass the control to the next,middleware is pluggable.
 That means you can just add middlewares you want to use to handle the request.
 Suppose you have done the task l6,and have a context,now we need to add a middleware layer to tiny webframework,and make it pluggable.
-Edit main.go,and finish the task.`)
+Edit main.go,and finish the task.
+`)
 }
