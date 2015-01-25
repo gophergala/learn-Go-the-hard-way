@@ -5,18 +5,17 @@ import (
 	"net"
 	"net/http"
 	"reflect"
-	"strconv"
 )
 
 type Server struct {
-	routes []route
+	routes []route      //routes
 	addr   string       //address
 	l      net.Listener //save the listener so it can be closed.
 }
 
 type route struct {
-	r           string
-	method      string
+	r           string        //route url
+	method      string        //method (GET)
 	httpHandler http.Handler  //custome handler is allowed.
 	handler     reflect.Value //handle func
 }
@@ -28,64 +27,10 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			if r.httpHandler != nil {
 				r.httpHandler.ServeHTTP(res, req)
 			} else {
-				//function handler
-				//*context must be the first argument.
-				ctx := &Context{req, res, s, make(map[string]string)}
-				if err := ctx.ParseForm(); err != nil {
-					log.Println(err)
-				}
-				var args []reflect.Value
-				if requiresContext(r.handler.Type()) {
-					args = append(args, reflect.ValueOf(ctx))
-				}
-				ret := r.handler.Call(args)
-				if len(ret) == 0 {
-					return
-				}
-				//if has return value,write to response.
-				sval := ret[0]
-				var content []byte
-				if sval.Kind() == reflect.String {
-					content = []byte(sval.String())
-				} else if sval.Kind() == reflect.Slice && sval.Type().Elem().Kind() == reflect.Uint8 {
-					content = sval.Interface().([]byte)
-				}
-				ctx.SetHeader("Content-Length", strconv.Itoa(len(content)), true)
-				ctx.ResponseWriter.Write(content)
+				//TODO:pass the contex to the function and write return value to res.
 			}
 		}
 	}
-}
-
-// SetHeader sets a response header. If `unique` is true, the current value
-// of that header will be overwritten . If false, it will be appended.
-func (ctx *Context) SetHeader(hdr string, val string, unique bool) {
-	if unique {
-		ctx.ResponseWriter.Header().Set(hdr, val)
-	} else {
-		ctx.ResponseWriter.Header().Add(hdr, val)
-	}
-}
-
-// requiresContext determines whether 'handlerType' contains
-// an argument to 'web.Ctx' as its first argument
-func requiresContext(handlerType reflect.Type) bool {
-	//if the method doesn't take arguments, no
-	if handlerType.NumIn() == 0 {
-		return false
-	}
-
-	//if the first argument is not a pointer, no
-	a0 := handlerType.In(0)
-	if a0.Kind() != reflect.Ptr {
-		return false
-	}
-	//if the first argument is a context, yes
-	if a0.Elem() == contextType {
-		return true
-	}
-
-	return false
 }
 
 //close the server
@@ -145,5 +90,7 @@ func main() {
 	println(`Go's field is backend.In this exercise,we focus on web framework,it shortens our development time and reduces our coding work.
 We will implement a function handler based tiny webframework.
 The first part is context management.Next part will focus on middleware.
-Now edit main.go file to `)
+Now edit main.go file to Complete 'Server.ServeHttp()'.
+In this method you need to call the handler in the context and pass context as paramater if in the signature,
+and also write the return valut to the responseWriter. `)
 }
