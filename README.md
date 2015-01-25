@@ -36,7 +36,7 @@ Run `go test`,if you completes the task,and it will tell you wether you pass the
 
 To get the tips,please run `go run main.go`,and fllow the tips to modify `main.go`.
 
-Now run `go run main.go`,let's go!
+Now run `git checkout l1`,let's go!
 
 #Exercies(currently available):
 
