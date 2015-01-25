@@ -24,5 +24,5 @@ Now run `go run main.go`,let's go!
 6.  tiny webframework 1,managing context.
 7.  tiny webframework 2,middleware.
 8.  lexer.
-9.  cli mp3 player.
+9.  cheat sheet.
 10. surprise!

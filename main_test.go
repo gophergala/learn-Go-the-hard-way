@@ -4,5 +4,14 @@ import (
 	"testing"
 )
 
-func TestMusicPlayer(t *testing.T) {
+func TestCheetSheet(t *testing.T) {
+	out := CheatSheet("animation")
+	if out != `//glasses
+(•_•)
+( •_•)>⌐■-■
+(⌐■_■)
+
+` {
+		t.Fail()
+	}
 }
