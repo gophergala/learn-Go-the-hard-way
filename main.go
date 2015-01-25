@@ -164,57 +164,9 @@ func lexUnkown(l *lexer) stateFn {
 	return nil
 }
 
-//scan number
+//TODO:scan number,and emit the token.
 func lexNum(l *lexer) stateFn {
-	r := l.next()
-	var hasMatissa = false
-	var hasFraction = false
-	if r == '-' {
-		r = l.next()
-		if !unicode.IsDigit(r) {
-			l.errf("expect decimal after '-',found %c at line %d,column %d", r, l.lineNum+1, l.colNum)
-			return lexError
-		}
-	}
-	//scan matissa
-	if r != '.' { //optional digit*
-		for unicode.IsDigit(r) {
-			hasMatissa = true
-			r = l.next()
-		}
-	}
-	//scan fraction
-	if r == '.' { //optional .digit*
-		r = l.next()
-		for unicode.IsDigit(r) {
-			hasFraction = true
-			r = l.next()
-		}
-	}
-	ln := l.lineNum
-	cn := l.colNum + 1
-	if r == 'e' || r == 'E' { //optional [E|e]-?digit*
-		r = l.next()
-		if r == '-' {
-			r = l.next()
-		}
-		//expotiona must be fllowed by at least one decimal digit
-		if !unicode.IsDigit(r) {
-			l.errf("expect decimal after expotion c at line %d,column %d", r, l.lineNum+1, l.colNum)
-			return lexError
-		}
-		for unicode.IsDigit(r) {
-			r = l.next()
-		}
-	}
-
-	if !hasMatissa && !hasFraction {
-		l.errf("expect decimal at line %d,column %d", ln, cn)
-	}
-	if r != eof {
-		l.backup()
-	}
-	l.emit(tNUM)
+	//unfinished
 	return lexBegin
 }
 
@@ -267,5 +219,5 @@ complete a small calculator.Our simple lexer just need to scann several tokens '
 Lexer is a typical produer-consumer pattern,so we need a channel to send token ater lexer initiated and run the scanner in a goroutine.
 Instead of switch,we use sate function,in order to skip the case statements.
 And finally we just need to receive tokens from the channel.
-Now edit main.go and finish the task.Utitiles have been given,you need to complete the 'lexNum' stateFn and pass the test.`)
+Now edit main.go and finish the task.Utitiles of lexer have been given,you need to write a small regexp engine to complete the 'lexNum' stateFn and pass the test.(Notice don't run 'go test' right now,because lexNum is currently infinite loop.`)
 }

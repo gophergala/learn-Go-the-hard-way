@@ -16,13 +16,13 @@ Now run `go run main.go`,let's go!
 
 #Categories:
 
-1.  warm up,reverse slice
-2.  parallel vector sum
-3.  cheat rock-paper-sissors
-4.  make map function
-5.  parallel dynamic programming
+1.  warm up,reverse slice.
+2.  parallel vector sum.
+3.  cheat rock-paper-sissors.
+4.  make map function.
+5.  parallel dynamic programming.
 6.  tiny webframework 1,managing context.
 7.  tiny webframework 2,middleware.
-8.  lexer(unfinished)
-9.  image process(unfinished)
-10.  hide...
+8.  add regexp engine to a lexer.
+9.  image process(unfinished).
+10.  hide....
