@@ -17,7 +17,7 @@ type Server struct {
 
 type route struct {
 	r       string        //route url
-	method  string        //method (GET)
+	method  string        //method
 	handler reflect.Value //handle func
 }
 
@@ -26,24 +26,16 @@ type Middleware interface {
 	Handle(*Context)
 }
 
-//Use add a new Middleware that implements Handle(*Context)
+//TODO:Use add a new Middleware that implements Handle(*Context)
 func (s *Server) Use(middlewares ...Middleware) {
-	s.middlewares = append(s.middlewares, middlewares...)
 }
 
-//Next calls next middleware.
+//TODO:Next calls next middleware.
 func (ctx *Context) Next() {
-	ctx.idx += 1
-	ctx.Invok()
 }
 
-//Invok calls middleware at index of ctx.idx.
+//TODO:Invok calls middleware at index of ctx.idx.
 func (ctx *Context) Invok() {
-	if ctx.idx >= len(ctx.middlewares) {
-		return
-	} else {
-		ctx.middlewares[ctx.idx].Handle(ctx)
-	}
 }
 
 //implements http.Handle
@@ -187,6 +179,6 @@ To decouple the request handling,middleware is very useful,each middleware just 
 and pass the control to the next,middleware is pluggable.
 That means you can just add middlewares you want to use to handle the request.
 Suppose you have done the task l6,and have a context,now we need to add a middleware layer to tiny webframework,and make it pluggable.
-Edit main.go,and finish the task.
+Edit main.go,and finish the task.Notice something new added.
 `)
 }
