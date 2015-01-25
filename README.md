@@ -20,7 +20,7 @@ The target users are the gophers who had went through the online documents and t
 ##Features
 
 The key features are the form of learning Go.
-All the tasks are challenging,and most come from the real open libraries as well as relevant papers or talks,however not difficult to complete.
+All the tasks are challenging,and most come from the real open libraries as well as relevant papers or talks,however not difficult to complete.It will help you understand main parts of these works instead of browsing the huge code.
 
 In my opinion the best way to learn coding is just coding.
 
@@ -34,11 +34,11 @@ Each exercise is a git tag(from l1 to l10),you can check out the tag,and finish 
 
 Run `go test`,if you completes the task,and it will tell you wether you pass the task.
 
-To get the tips,please run `go run main.go`.
+To get the tips,please run `go run main.go`,and fllow the tips to modify `main.go`.
 
 Now run `go run main.go`,let's go!
 
-#Categories:
+#Exercies(currently available):
 
 1.  warm up,reverse slice.
 2.  parallel vector sum.
@@ -50,3 +50,4 @@ Now run `go run main.go`,let's go!
 8.  lexer.
 9.  cheat sheet.
 10. a surprise!
+
