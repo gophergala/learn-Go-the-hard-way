@@ -26,6 +26,16 @@ In my opinion the best way to learn coding is just coding.
 
 There are currently 10 exercises,thoese works were done during the weekend of hackthon,so they are not seemingly that perfect,but I am sure,you will gain a lot if you finish the tasks.
 
+##How to install
+
+This repo has no dependencies,so you can install be typing:
+
+`git clone https://github.com/gophergala/learn-Go-the-hard-way`
+
+or
+
+`go get -u github.com/gophergala/learn-Go-the-hard-way`
+
 ##How to use
 
 You should complete the current exercise before you enter the next.
@@ -34,11 +44,11 @@ Each exercise is a git tag(from l1 to l10),you can check out the tag,and finish 
 
 Run `go test`,if you completes the task,and it will tell you wether you pass the task.
 
-To get the tips,please run `go run main.go`,and fllow the tips to modify `main.go`.
+To get the tips,please run `go run main.go`,and follow the tips to modify `main.go`.
 
 Now run `git checkout l1`,let's go!
 
-#Exercies(currently available):
+##Exercies(currently available):
 
 1.  warm up,reverse slice.
 2.  parallel vector sum.
