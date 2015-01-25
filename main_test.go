@@ -1,27 +1,28 @@
 package main
 
 import (
-	"runtime"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-func TestParallelMST(t *testing.T) {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-	prob = [n]float64{5, 10, 2, 3, 4}
-	for d := 0; d < vp; d++ { //sub-diagonal of j=i+d
-		for i := 0; i+d < vp; i++ {
-			//runs chunk (i,i+d)
-			go chunk(i, i+d)
-		}
+func TestTiny(t *testing.T) {
+	recorder := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "http://localhost:3000/hello?name=foo", nil)
+	s := NewServer()
+	s.Get("/hello", func(ctx *Context) string {
+		name := ctx.URL.Query().Get("name")
+		return name
+	})
+	s.ServeHTTP(recorder, req)
+	name, err := ioutil.ReadAll(recorder.Body)
+	if err != nil {
+		t.Fatal(err)
 	}
-	<-finish
-	if P(0, 5, 0, 5) != `0 5 20 24 32 44 
-0 0 10 14 22 34 
-0 0 0 2 7 15 
-0 0 0 0 3 10 
-0 0 0 0 0 4 
-0 0 0 0 0 0 
-` {
+	if string(name) != "foo" {
+		println(string(name))
 		t.Fail()
+		return
 	}
 }
