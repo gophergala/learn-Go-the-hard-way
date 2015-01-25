@@ -27,6 +27,7 @@ func (t token) String() string {
 	return fmt.Sprintf("<lit:\"%s\",typ:%s,pos line:%d,pos col:%d>", t.lit, tokens[t.typ], t.pos.line, t.pos.col)
 }
 
+//stateFn is used for state automaton convertion.
 type stateFn func(l *lexer) stateFn
 
 //lexical parser.
@@ -132,7 +133,7 @@ func (l *lexer) emit(typ TokenType) {
 	if t.typ == tEOF {
 		close(l.tokenChan)
 	}
-
+	l.cur = t
 	l.start = l.pos
 
 }
@@ -140,7 +141,6 @@ func (l *lexer) emit(typ TokenType) {
 //read token
 func (l *lexer) token() token {
 	token := <-l.tokenChan
-	l.cur = token
 	return token
 }
 
@@ -152,11 +152,8 @@ func (l *lexer) run() {
 }
 
 //------------------------------------sate function----------------------------------
-//error handling
-//TODO:sync errors.
 func lexError(l *lexer) stateFn {
 	//premature lexical scanning
-	//不emit接收方就一直在等待
 	l.emit(tEOF)
 	return nil
 }
@@ -167,11 +164,11 @@ func lexUnkown(l *lexer) stateFn {
 	return nil
 }
 
+//scan number
 func lexNum(l *lexer) stateFn {
 	r := l.next()
 	var hasMatissa = false
 	var hasFraction = false
-	//optional '-',must be fllowed by at least  digit
 	if r == '-' {
 		r = l.next()
 		if !unicode.IsDigit(r) {
@@ -231,17 +228,22 @@ func lexEOF(l *lexer) stateFn {
 func lexBegin(l *lexer) stateFn {
 	switch r := l.next(); {
 	case unicode.IsDigit(r) || r == '.' || r == '-':
-		r2 := l.peek()
-		if r == '-' &&
-			r2 != '.' && !unicode.IsDigit(r2) && r2 != 'E' && r2 != 'e' {
-			goto FL
-		}
 		l.backup()
-		return lexNum
-	FL:
+		if r == '-' && l.cur.typ == tNUM {
+			goto L //go to minus
+		}
+		lexNum(l)
+		return lexBegin
+	L:
 		fallthrough
 	case r == '-':
-
+		l.emit(tMUNIS)
+	case r == '*':
+		l.emit(tMUTIL)
+	case r == '/':
+		l.emit(tDIV)
+	case r == '+':
+		l.emit(tPLUS)
 	case r == ' ':
 		l.ignore()
 	case r == '\n':
@@ -260,9 +262,10 @@ func lexBegin(l *lexer) stateFn {
 
 func main() {
 	println(`In this task we will focus on a lexer implementation,and it's concurrency part.
-lexer is a lexical scanner that consumes source code and produce meaningful tokens.With this tokens we can then 
-complete a small calculator.Our simple lexer just need to scann several tokens '+','-','*','\',and number.
-Lexer is a typical produer-consumer pattern,so we need a channel to send token.
-Instead of switch,we use sate function instead,in order to skip the case statements.
-Now edit main.go and finish the task.`)
+lexer is a lexical scanner that consumes source code and produce meaningful tokens.With these tokens we can then 
+complete a small calculator.Our simple lexer just need to scann several tokens '+','-','*','\',and numbers.
+Lexer is a typical produer-consumer pattern,so we need a channel to send token ater lexer initiated and run the scanner in a goroutine.
+Instead of switch,we use sate function,in order to skip the case statements.
+And finally we just need to receive tokens from the channel.
+Now edit main.go and finish the task.Utitiles have been given,you need to complete the 'lexNum' stateFn and pass the test.`)
 }
