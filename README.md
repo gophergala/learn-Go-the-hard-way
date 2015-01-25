@@ -23,6 +23,6 @@ Now run `go run main.go`,let's go!
 5.  parallel dynamic programming.
 6.  tiny webframework 1,managing context.
 7.  tiny webframework 2,middleware.
-8.  add regexp engine to a lexer.
-9.  image process(unfinished).
-10.  hide....
+8.  lexer.
+9.  cli mp3 player.
+10. surprise!
