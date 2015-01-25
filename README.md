@@ -1,6 +1,6 @@
 #Learn Go The Hard Way
 
-The best way to learn coding is practice,it is insipred by "learn python the hard way".
+The best way to learn coding is practice,it is insipred by "learn python the hard way" and "Go tour".
 
 There are currently 10 exercises,all comes from smart parts of open libraries or relevant pappers,it will help you understand Go's features instead of browsing the huge code.
 
@@ -25,4 +25,4 @@ Now run `go run main.go`,let's go!
 7.  tiny webframework 2,middleware.
 8.  lexer(unfinished)
 9.  image process(unfinished)
-10. hide...
+10.  hide...
