@@ -14,7 +14,7 @@ fill the unfinished functions in the source code.
 
 ##Target User
 
-The target users are the gophers who had went through the online documents and tutorials like [Effective Go](https://golang.org/doc/effective_go.html),[A Tour of Go](https://tour.golang.org/welcome/1),and [build-Go-web-applications](https://github.com/astaxie/build-web-application-with-golang), assuming the users have basic understanding about Go and want to get something to do with the features of Go.
+The target users are the gophers who had went through the online documents and tutorials like [Effective Go](https://golang.org/doc/effective_go.html), [A Tour of Go](https://tour.golang.org/welcome/1),and [build-Go-web-applications](https://github.com/astaxie/build-web-application-with-golang), assuming the users have basic understanding about Go and want to get something to do with the features of Go.
 
 ##Features
 
