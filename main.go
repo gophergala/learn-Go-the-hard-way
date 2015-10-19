@@ -77,5 +77,5 @@ func Game() []bool {
 }
 
 func main() {
-	println("Now let's play a game 'rock-paper-scissors',there are 2 players-you and a goroutine!\nTo be bound to win,you should call a goroutine to help you to peer what your opponent choose.\nTwo out of three.\nPlease edit main.go to complete func 'Cheat' to win!")
+	println("Now let's play a game 'rock-paper-scissors',there are 2 players-you and a goroutine!\nTo be bound to win,you should call a goroutine to help you to peek what your opponent choose.\nTwo out of three.\nPlease edit main.go to complete func 'Cheat' to win!")
 }
