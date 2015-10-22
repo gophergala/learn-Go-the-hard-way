@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"time"
 )
 
 const (
@@ -30,9 +31,10 @@ func Win(you, he int) bool {
 }
 
 func Opponent(guess chan Choice, please chan struct{}) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < 3; i++ {
 		<-please
-		choice := rand.Intn(3)
+		choice := r.Intn(3)
 		who := 1
 		guess <- Choice{who, choice}
 		please <- struct{}{}
@@ -42,9 +44,10 @@ func Opponent(guess chan Choice, please chan struct{}) {
 var Cheat func(guess chan Choice) chan Choice
 
 func Me(guess chan Choice, please chan struct{}) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < 3; i++ {
 		<-please
-		choice := rand.Intn(3)
+		choice := r.Intn(3)
 		who := 0
 		guess <- Choice{who, choice}
 		please <- struct{}{}
