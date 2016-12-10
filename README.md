@@ -1,6 +1,6 @@
 #Learn Go the Hard Way
 
-Origined from the Go Gala hackthon.
+Originated from the Go Gala hackthon.
 
 ![img](res/m.jpg)
 
@@ -27,7 +27,7 @@ There are currently 10 exercises, those works were done during the weekend of ha
 
 ##How to install
 
-This repo has no dependencies, so you can install be typing:
+This repo has no dependencies, so you can install by typing:
 
 `git clone https://github.com/gophergala/learn-Go-the-hard-way`
 
@@ -39,19 +39,19 @@ or
 
 You should complete the current exercise before you enter the next.
 
-Each exercise is a git tag(from l1 to l10), you can check out the tag, and finish the task with tips.
+Each exercise is a git tag (from l1 to l10), you can check out the tag, and finish the task with tips.
 
-Run `go test`, if you completes the task, and it will tell you wether you pass the task.
+Run `go test`, if you complete the task, and it will tell you whether you pass the task.
 
 To get the tips, please run `go run main.go`, and follow the tips to modify `main.go`.
 
 Now run `git checkout l1`, let's go!
 
-##Exercies(currently available):
+##Exercises (currently available):
 
 1.  warm up, reverse slice.
 2.  parallel vector sum.
-3.  cheat rock-paper-sissors.
+3.  cheat rock-paper-scissors.
 4.  make map function.
 5.  parallel dynamic programming.
 6.  tiny webframework 1, managing context.
