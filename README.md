@@ -1,10 +1,10 @@
-#Learn Go the Hard Way
+# Learn Go the Hard Way
 
 Originated from the Go Gala hackthon.
 
 ![img](res/m.jpg)
 
-##Inspiration:
+## Inspiration:
 
 Before Gala, I was having a talk with my friend, he thought coding is cool, and asked me to teach him to code.
 At that time the idea came to my mind - How about write a open repository for gophers to learn how to code Go code by practice?
@@ -12,11 +12,11 @@ At that time the idea came to my mind - How about write a open repository for go
 I got the name "Learn Go the Hard Way" with the inspiration of ["Learn Python the Hard Way"](http://learnpythonthehardway.org/), and decided to use the form of "Go tour" -
 fill the unfinished functions in the source code.
 
-##Target User
+## Target User
 
 The target users are the gophers who had went through the online documents and tutorials like [Effective Go](https://golang.org/doc/effective_go.html), [A Tour of Go](https://tour.golang.org/welcome/1), and [build-Go-web-applications](https://github.com/astaxie/build-web-application-with-golang), assuming the users have basic understanding about Go and want to get something to do with the features of Go.
 
-##Features
+## Features
 
 The key features are the form of learning Go.
 All the tasks are challenging, and most come from the real open libraries as well as relevant papers or talks, however not difficult to complete. It will help you understand main parts of these works instead of browsing the huge code.
@@ -25,7 +25,7 @@ In my opinion the best way to learn coding is just coding.
 
 There are currently 10 exercises, those works were done during the weekend of hackthon, so they are not seemingly that perfect, but I am sure, you will gain a lot if you finish the tasks.
 
-##How to install
+## How to install
 
 This repo has no dependencies, so you can install by typing:
 
@@ -35,7 +35,7 @@ or
 
 `go get -u github.com/gophergala/learn-Go-the-hard-way`
 
-##How to use
+## How to use
 
 You should complete the current exercise before you enter the next.
 
@@ -47,7 +47,7 @@ To get the tips, please run `go run main.go`, and follow the tips to modify `mai
 
 Now run `git checkout l1`, let's go!
 
-##Exercises (currently available):
+## Exercises (currently available):
 
 1.  warm up, reverse slice.
 2.  parallel vector sum.
@@ -60,7 +60,7 @@ Now run `git checkout l1`, let's go!
 9.  cheat sheet.
 10. a surprise!
 
-##Members:
+## Members:
 
 [ggaaooppeenngg](https://github.com/ggaaooppeenngg)
 
