@@ -63,6 +63,3 @@ Now run `git checkout l1`, let's go!
 ## Members:
 
 [ggaaooppeenngg](https://github.com/ggaaooppeenngg)
-
-PS:looking for an internship~求实习工作~
-
