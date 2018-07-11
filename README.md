@@ -63,3 +63,8 @@ Now run `git checkout l1`, let's go!
 ## Members:
 
 [ggaaooppeenngg](https://github.com/ggaaooppeenngg)
+
+
+## Find Colleague
+
+I am currently workinng at [kesci](https://www.kesci.com/about/team), if you are interested in Kubernetes and machine learning infra, please contact me!
